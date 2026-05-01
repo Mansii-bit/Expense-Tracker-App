@@ -2,6 +2,8 @@ import UserModel from "./user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendMail } from "../utils/mail.js";
+import { otpTemplate } from "../utils/otp.template.js";
+import { generateOTP } from "../utils/generate.otp.js";
 
 export const createUser = async (req,res)=>{
     try{
@@ -16,8 +18,17 @@ export const createUser = async (req,res)=>{
 
 export const sendEmail = async (req,res)=>{
     try{
-       await sendMail("mansi.knp19@gmail.com","OTP for signup", "<h1>123456</h1>") 
-        res.json({message:"Email Send Successfully"});
+        const {email}=req.body;
+        const OTP=generateOTP();
+        const isEmail= await UserModel.findOne({email});
+        if(isEmail)
+            return res.status(400).json({message:"Already Registered"});
+       await sendMail(email,"OTP for signup", otpTemplate(OTP)) 
+        res.json({
+            message:"Email Sent Successfully",
+            otp : OTP,
+            success : true
+        });
     }catch(err){
         res.status(500).json({message:err.message});
     }
@@ -52,7 +63,7 @@ export const login = async (req,res)=>{
             secure: process.env.ENVIRONMENT === "DEV" ? false : true,
             httpOnly:true
         });
-        res.json({message:"Login Success"}); 
+        res.json({message:"Login Success", role:user.role}); 
     }catch(err){
         res.status(500).json({message:err.message});
     }

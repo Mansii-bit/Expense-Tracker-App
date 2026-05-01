@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 // DB
-mongoose.connect(process.env.DB_URL)
+await mongoose.connect(process.env.DB_URL)
   .then(() => console.log("Database Connected"))
   .catch(() => console.log("Database not connected"));
 
