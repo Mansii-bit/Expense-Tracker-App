@@ -2,10 +2,9 @@ import { Button, Card, Form, Input } from "antd";
 import { UserOutlined, LockOutlined, PhoneOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import Homelayout from "../../../layout/HomeLayout";
-import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-toastify";
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+import http from "../../../utils/http.js";
 
 const { Item } = Form;
 
@@ -21,7 +20,7 @@ const Signup = () => {
         return toast.error("OTP Mismatched");
       }
       setLoading(true);
-      await axios.post("/api/user/login", formData);
+      await http.post("/app/user", formData);
       toast.success("Signup Successfull");
       setOtp(null);
       setFormData(null);
@@ -37,7 +36,7 @@ const Signup = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const { data } = await axios.post("/api/user/send-mail", values);
+      const { data } = await http.post("/api/user/send-mail", values);
       setOtp(data.otp);
       setFormData(values);
     } catch (err) {

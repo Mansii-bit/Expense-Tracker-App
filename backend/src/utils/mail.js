@@ -20,6 +20,7 @@ export const sendMail =async (email,subject,template)=>{
         await config.sendMail(options);
         return true;    
     }catch(err){
-        return false;
-    }
+    console.log("MAIL ERROR:", err);
+    return false;
+}
 }

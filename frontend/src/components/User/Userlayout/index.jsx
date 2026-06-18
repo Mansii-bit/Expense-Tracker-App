@@ -1,7 +1,8 @@
 import { AppstoreAddOutlined, BarChartOutlined, LoginOutlined, MenuOutlined } from "@ant-design/icons";
 import { Layout, Image, Menu, Button } from "antd";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import useSWR from "swr";
 
 const { Sider, Header, Footer, Content } = Layout;
 
@@ -26,6 +27,8 @@ const [open, setOpen] =useState(false);
 const handleNavigate=(menu)=>{
     navigate(menu.key);
 }
+
+const {data:session,error,isLoading }= useSWR()
 
 const siderStyle={
     overflow:'auto',
@@ -81,6 +84,9 @@ const headerStyle={
             />
 
         </Header>
+        <Content>
+          <Outlet />
+        </Content>
       </Layout>
     </Layout>
   );
