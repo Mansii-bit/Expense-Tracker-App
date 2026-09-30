@@ -1,5 +1,5 @@
 import { Button, Card, Divider } from 'antd';
-import { BarChartOutlined, DollarCircleFilled, DollarCircleOutlined, MinusCircleOutlined, PlusCircleFilled, PlusCircleOutlined } from '@ant-design/icons';
+import { BarChartOutlined, DollarCircleOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import DailyTransactionChart from '../DailyTransactions.jsx';
 import { useState } from 'react';
 import http from "../../../utils/http.js"
