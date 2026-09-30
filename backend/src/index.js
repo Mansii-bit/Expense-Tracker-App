@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import morgan from "morgan";
+import TransactionRouter from "./transaction/transaction.route.js";
+import DashboardRouter from "./dashboard/dashboard.route.js";
 
 dotenv.config();
 
@@ -15,10 +17,11 @@ await mongoose.connect(process.env.DB_URL)
   .then(() => console.log("Database Connected"))
   .catch(() => console.log("Database not connected"));
 
+
 // CORS
 app.use(cors({
   origin: process.env.DOMAIN,
-  credentials: true
+  credentials: true,
 }));
 
 app.use(cookieParser());
@@ -30,6 +33,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use("/api/user", userRouter);
+app.use("/api/transaction",TransactionRouter)
+app.use("/api/dashboard",DashboardRouter)
 
-// Start server (MOVE HERE)
-app.listen(3030, () => console.log("Server is running on port 3030"));
+// Start server 
+app.listen(3030, () => console.log("SERVER is running on port 3030"));

@@ -1,4 +1,4 @@
-import { AppstoreAddOutlined, BarChartOutlined, DollarOutlined, LoginOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
+import { AppstoreAddOutlined, BarChartOutlined, DollarOutlined, LoginOutlined, LogoutOutlined, MenuOutlined, UserOutlined } from "@ant-design/icons";
 import { Layout, Image, Menu, Button,theme } from "antd";
 import { useState } from "react";
 import { Navigate, Outlet, useFetcher, useLocation, useNavigate } from "react-router-dom";
@@ -12,23 +12,23 @@ const { Sider, Header, Footer, Content } = Layout;
 
 const items = [
   {
-    key: "/app/user/dashboard",
+    key: "/app/admin/dashboard",
     label: "Dashboard",
     icon: <AppstoreAddOutlined />,
   },
   // {
-  //   key: "/app/user/report",
+  //   key: "/app/admin/report",
   //   label: "Reports",
   //   icon: <BarChartOutlined />,
   // },
     {
-    key: "/app/user/transactions",
-    label: "Transactions",
-    icon: <DollarOutlined />,
+    key: "/app/admin/users",
+    label: "Users",
+    icon: <UserOutlined />,
   },
 ];
 
-const Userlayout = () => {
+const Adminlayout = () => {
 
     const navigate=useNavigate();
     const {pathname}=useLocation();
@@ -127,4 +127,4 @@ const {
     </Layout>
   );
 };
-export default Userlayout;
+export default Adminlayout;

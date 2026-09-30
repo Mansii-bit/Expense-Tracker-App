@@ -5,7 +5,6 @@ import { sendMail } from "../utils/mail.js";
 import { otpTemplate } from "../utils/otp.template.js";
 import { generateOTP } from "../utils/generate.otp.js";
 import { forgotPasswordTemplate } from "../utils/forgot-template.js";
-import http from "../../../frontend/src/utils/http.js";
 
 export const createUser = async (req,res)=>{
     try{
@@ -20,6 +19,7 @@ export const createUser = async (req,res)=>{
 
 export const sendEmail = async (req,res)=>{
     try{
+          console.log("BODY:", req.body);
         const {email}=req.body;
         const OTP=generateOTP();
         const isEmail= await UserModel.findOne({email});
@@ -55,6 +55,8 @@ export const login = async (req,res)=>{
         const user=await UserModel.findOne({email});
         if(!user)
             return res.status(404).json({message:"User not Found"}); //404-not found
+        if(!user.status)
+            return res.status(404).json({message:"You are not an Active Member"}); 
         const isLogged=await bcrypt.compare(password,user.password);
         if(!isLogged)
             return res.status(401).json({message:"Incorrect Password"});//401-unauthorized
@@ -69,6 +71,26 @@ export const login = async (req,res)=>{
            maxAge:86400000,
         });
         res.json({message:"Login Success", role:user.role}); 
+    }catch(err){
+        res.status(500).json({message:err.message});
+    }
+}
+
+
+export const logout = async (req,res)=>{
+    try{
+        res.cookie('authToken',null,{
+        httpOnly : true,
+        secure : process.env.ENVIRONMENT !=="DEV",
+        sameSite : process.env.ENVIRONMENT === "DEV" ? "lax" :"none",
+        path : "/",
+        domain : undefined,
+        maxAge : 0,
+    })
+    res.status(200).json({
+        message:"Logout Success"
+    })
+        
     }catch(err){
         res.status(500).json({message:err.message});
     }
@@ -112,3 +134,37 @@ export const changePassword = async (req,res)=>{
         res.status(500).json({message:err.message});
     }
 }
+
+
+
+export const getAllUsers = async (req, res) => {
+    try {
+        const users =  await UserModel.find().sort({createdAt:-1});
+
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({
+            message: err.message || "Internal server error.",
+        });
+    }
+};
+
+
+export const updateStatus = async (req, res) => {
+    try {
+        const {status} = req.body;
+        const { id } = req.params;
+        const user = await UserModel.findByIdAndUpdate(id, {status}, { new: true });
+         if(!user){
+            return res.status(404).json({
+                message:"User not Found",
+                user
+            })
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({
+            message: err.message || "Internal server error.",
+        });
+    }
+};

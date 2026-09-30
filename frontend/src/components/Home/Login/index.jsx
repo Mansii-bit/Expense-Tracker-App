@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import http from "../../../utils/http";
+import http from "../../../utils/http.js";
 
 
 const { Item } = Form;
@@ -14,6 +14,7 @@ const Login = () => {
     const navigate=useNavigate();
     const [loginForm]= Form.useForm();
     const [loading, setLoading] = useState(false);
+    // const [otp, setOtp] = useState()
     
 
   const onFinish = async (values) => {
@@ -23,13 +24,13 @@ const Login = () => {
       console.log(data);
       const {role}=data;
       if(role==="admin")
-        return toast.success("Admin tried to login");
+        return navigate("/app/admin/dashboard");
      if(role==="user")
-        return navigate("/app/user");
+        return navigate("/app/user/dashboard");
     } catch (err) {
-      setOtp(null);
-      setFormData(null);
-      toast.error(err.response ? err.response.data.messsage : err.messsage);
+      // setOtp(null);
+      // setFormData(null);
+      toast.error(err.response ? err.response.data.message : err.message);
     } finally {
       setLoading(false);
     }
@@ -42,8 +43,8 @@ const Login = () => {
       </div>
       <div className="w-full md:w-1/2 flex items-center justify-center p-2 md:p-6 bg-white">
         <Card className="w-full max-w-sm shadow-xl">
-          <h2 className="font-bold text-[#5379f5] text-2xl text-center mb-6">
-            Track you Expense
+          <h2 className="font-bold text-[#344c9c] text-2xl text-center mb-6">
+            Track you Expenses
           </h2>
           <Form 
             name="login-form" 
@@ -68,7 +69,7 @@ const Login = () => {
                 type="text"
                 htmlType="submit"
                 block
-                className="!bg-[#5379f5] !text-white !font-bold"
+                className="!bg-[#344c9c] !text-white !font-bold"
                 loading={loading}
               >
                 Login
@@ -79,14 +80,14 @@ const Login = () => {
             <Link
               style={{ textDecoration: "underline" }}
               to="/forgot-password"
-              className="!text-[#5379f5] !font-bold"
+              className="!text-[#344c9c] !font-bold"
             >
               Forgot Password
             </Link>
             <Link
               style={{ textDecoration: "underline" }}
               to="/signup"
-              className="!text-[#5379f5] !font-bold"
+              className="!text-[#344c9c] !font-bold"
             >
               Don't have an account?
             </Link>

@@ -5,7 +5,7 @@ const fetcher = async (url) =>{
         const {data} = await  http.get(url);
         return data;
     }catch(err){
-        throw new Error(err);
+        return null;
     }
 }
 
