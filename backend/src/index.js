@@ -37,4 +37,5 @@ app.use("/api/transaction",TransactionRouter)
 app.use("/api/dashboard",DashboardRouter)
 
 // Start server 
-app.listen(3030, () => console.log("SERVER is running on port 3030"));
+const port = process.env.PORT || 3030;
+app.listen(port, () => console.log(`Server is running on port ${port}`));

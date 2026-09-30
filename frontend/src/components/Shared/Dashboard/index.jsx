@@ -1,13 +1,11 @@
 import { Button, Card, Divider } from 'antd';
 import { BarChartOutlined, DollarCircleFilled, DollarCircleOutlined, MinusCircleOutlined, PlusCircleFilled, PlusCircleOutlined } from '@ant-design/icons';
 import DailyTransactionChart from '../DailyTransactions.jsx';
-import { generateFakeTransactions } from '../../../utils/faketransactions.js';
 import { useState } from 'react';
 import http from "../../../utils/http.js"
 import Loader from "../Loader.jsx"
 import { useEffect } from 'react';
 
-const fakeTransactions = generateFakeTransactions(30);
 
 const Dashboard = () => {
 
