@@ -32,7 +32,7 @@ const Dashboard = () => {
                                 className='!bg-blue-600'
                             />
                             <h1 className='text-xl font-semibold text-blue-600'>
-                                Transaction
+                                Transactions
                             </h1>
                         </div>
                         <Divider type='vertical' className='h-24' />
@@ -84,7 +84,7 @@ const Dashboard = () => {
                                 className='!bg-red-600'
                             />
                             <h1 className='text-xl font-semibold text-red-600'>
-                                Total Debit
+                                Total Debits
                             </h1>
                         </div>
                         <Divider orientation='vertical' className='h-24' />
