@@ -96,7 +96,6 @@ const Transactions = () => {
         fetcher
     );
 
-    // console.log(transactions, error, isLoading);
 
     const onDelete = async (id) => {
         try {

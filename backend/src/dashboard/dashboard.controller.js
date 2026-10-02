@@ -3,7 +3,6 @@ import TransactionModel from "../transaction/transaction.model.js";
 export const getReport = async (req, res) => {
     try {
         const { id, role } = req.user;
-        console.log(id, role);
         let transactions=[];
        if(role==="admin"){
             transactions = await TransactionModel.find().lean();

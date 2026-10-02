@@ -77,8 +77,6 @@ const Users = () => {
         fetcher
     );
 
-    // console.log(transactions, error, isLoading);
-
     const onStatus = async (obj) => {
         try {
             setLoading(true);

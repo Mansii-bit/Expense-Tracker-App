@@ -19,7 +19,6 @@ const ForgotPassword = () => {
 
   useEffect(() => {
     const tok = params.get("token");
-    console.log("Token from URL:", tok);
     if (tok) {
       checkToken(tok);
     } else setToken(null);
@@ -69,8 +68,6 @@ const ForgotPassword = () => {
         navigate("/");
       }, 3000);
     } catch (err) {
-      // setOtp(null);
-      // setFormData(null);
       toast.error(err.response ? err.response.data.message : err.message);
     } finally {
       setLoading(false);

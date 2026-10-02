@@ -16,13 +16,10 @@ const Signup = () => {
 
   const onSignup = async (values) => {
     try {
-//       console.log("Entered OTP:", values.otp);
-// console.log("Stored OTP:", otp);
       if (Number(values.otp) !== Number(otp)) {
         return toast.error("OTP Mismatched");
       }
       setLoading(true);
-      console.log("SIGNUP API CALLED");
       await http.post("/api/user", formData);
       toast.success("Signup Successfull");
       setOtp(null);
@@ -40,7 +37,6 @@ const Signup = () => {
     try {
       setLoading(true);
       const { data } = await http.post("/api/user/send-mail", values);
-      console.log("OTP RESPONSE:", data);
       setOtp(data.otp);
       setFormData(values);
     } catch (err) {

@@ -14,22 +14,18 @@ const Login = () => {
     const navigate=useNavigate();
     const [loginForm]= Form.useForm();
     const [loading, setLoading] = useState(false);
-    // const [otp, setOtp] = useState()
     
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
       const { data } = await http.post("/api/user/login", values);
-      console.log(data);
       const {role}=data;
       if(role==="admin")
         return navigate("/app/admin/dashboard");
      if(role==="user")
         return navigate("/app/user/dashboard");
     } catch (err) {
-      // setOtp(null);
-      // setFormData(null);
       toast.error(err.response ? err.response.data.message : err.message);
     } finally {
       setLoading(false);
