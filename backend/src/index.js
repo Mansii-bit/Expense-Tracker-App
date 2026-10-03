@@ -19,8 +19,9 @@ await mongoose.connect(process.env.DB_URL)
 
 
 // CORS
+const allowedOrigin = process.env.DOMAIN ? process.env.DOMAIN.replace(/\/+$/, "") : true;
 app.use(cors({
-  origin: process.env.DOMAIN,
+  origin: allowedOrigin,
   credentials: true,
 }));
 

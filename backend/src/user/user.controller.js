@@ -24,10 +24,13 @@ export const sendEmail = async (req,res)=>{
         const isEmail= await UserModel.findOne({email});
         if(isEmail)
             return res.status(400).json({message:"Already Registered"});
-       await sendMail(email,"OTP for signup", otpTemplate(OTP)) 
+        const sent = await sendMail(email, "OTP for signup", otpTemplate(OTP));
+        if (!sent)
+            return res.status(424).json({ message: "Email Sending Failed" });
         res.json({
-            message:"Email Sent Successfully",
-            success : true
+            message: "Email Sent Successfully",
+            success: true,
+            otp: OTP
         });
     }catch(err){
         res.status(500).json({message:err.message});
