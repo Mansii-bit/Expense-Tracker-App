@@ -165,14 +165,6 @@ Open the local URL displayed in your terminal.
 - Sensitive configuration values are managed through environment variables.
 - Never commit real credentials, API keys, or `.env` files to GitHub.
 
-## Future Improvements
-
-- Monthly and category-wise expense summaries.
-- Budget creation and spending-limit alerts.
-- Advanced financial analytics and reporting.
-- Export transactions to CSV or PDF.
-- Transaction filtering and search.
-
 ## Author
 
 **Mansi Singh**
