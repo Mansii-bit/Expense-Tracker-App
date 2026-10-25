@@ -1,14 +1,16 @@
-import { AppstoreAddOutlined, BarChartOutlined, DollarOutlined, LoginOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
-import { Layout, Image, Menu, Button,theme } from "antd";
+import {
+  AppstoreAddOutlined,
+  DollarOutlined,
+  MenuOutlined,
+  PoweroffOutlined,
+} from "@ant-design/icons";
+import { Layout, Image, Menu, Button, ConfigProvider } from "antd";
 import { useState } from "react";
-import { Navigate, Outlet, useFetcher, useLocation, useNavigate } from "react-router-dom";
-import useSWR from "swr";
-import fetcher from "../../../utils/fetcher";
-import Loader from "../../Shared/Loader";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import http from "../../../utils/http";
 
-const { Sider, Header, Footer, Content } = Layout;
+const { Sider, Header, Content } = Layout;
 
 const items = [
   {
@@ -16,12 +18,7 @@ const items = [
     label: "Dashboard",
     icon: <AppstoreAddOutlined />,
   },
-  // {
-  //   key: "/app/user/report",
-  //   label: "Reports",
-  //   icon: <BarChartOutlined />,
-  // },
-    {
+  {
     key: "/app/user/transactions",
     label: "Transactions",
     icon: <DollarOutlined />,
@@ -29,102 +26,124 @@ const items = [
 ];
 
 const Userlayout = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const navigate=useNavigate();
-    const {pathname}=useLocation();
-const [open, setOpen] =useState(false);
-const [loading, setLoading] =useState(false);
-
-const handleNavigate=(menu)=>{
+  const handleNavigate = (menu) => {
     navigate(menu.key);
-}
+  };
 
+  const siderStyle = {
+    overflow: "auto",
+    height: "100vh",
+    position: "sticky",
+    insetInlineStart: 0,
+    top: 0,
+    bottom: 0,
+    scrollbarWidth: "thin",
+    scrollbarGutter: "stable",
+    backgroundColor: "#071228",
+  };
 
-const siderStyle={
-    overflow:'auto',
-    height:'100vh',
-    position:'sticky',
-    insetInlineStart:0,
-    top:0,
-    bottom:0,
-    scrollbarWidth:'thin',
-    scrollbarGutter:'stable',
-};
+  const headerStyle = {
+    position: "sticky",
+    top: 0,
+    zIndex: 10,
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    padding: "0 24px",
+    backgroundColor: "#ffffff",
+    borderBottom: "1px solid #f1f5f9",
+    height: "64px",
+  };
 
-const headerStyle={
-    position:'sticky',
-    top:0,
-    zIndex:1,
-    width:'100%',
-    display:'flex',
-    alignItems:'center',
-    padding:0,
-};
+  const logout = async () => {
+    try {
+      setLoading(true);
+      await http.get("/api/user/logout");
+      sessionStorage.removeItem("userInfo");
+      navigate("/");
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      toast.error(err.response ? err.response.data.message : err.message);
+    }
+  };
 
-//logout
-const logout = async()=>{
-  try{
-    setLoading(true);
-    await http.get("/api/user/logout");
-    navigate("/");
-    setLoading(false);
-  }catch(err){
-    setLoading(false);
-    toast.error(err.response ?  err.response.data.message : err.message );
-  }
-}
-
-const {
-  token: { colorBgContainer, borderRadiusLG}
-} = theme.useToken();
   return (
-
-
-    <Layout className="!min-h-screen">
-      <Sider style={siderStyle} collapsible collapsed={open}>
-        <div className="flex items-center justify-center my-4">
-          <Image
-            src="/front.jpg"
-            width={60}
-            height={60}
-            alt="logo"
-            className="rounded-full !mx-auto mb-3"
-          />
+    <Layout className="!min-h-screen !bg-slate-50">
+      <Sider
+        style={siderStyle}
+        collapsible
+        collapsed={open}
+        trigger={null}
+        width={220}
+        className="!bg-[#071228]"
+      >
+        <div className="flex items-center justify-center my-6">
+          <div className="w-14 h-14 rounded-full bg-white/10 p-1 flex items-center justify-center border border-white/20">
+            <Image
+              src="/front.jpg"
+              width={48}
+              height={48}
+              preview={false}
+              alt="logo"
+              className="rounded-full object-cover"
+            />
+          </div>
         </div>
-        <Menu
-          defaultSelectedKeys={[pathname]}
-          theme="dark"
-          items={items}
-          onClick={handleNavigate}
-        />
-      </Sider>
-      <Layout>
-        <Header style={headerStyle} className="flex items-center justify-between !px-5 !bg-white !shadow">
-            <Button
-            onClick={()=>setOpen(!open)}
-            icon={<MenuOutlined/>}
-            />
-             <Button
-            icon={<LogoutOutlined/>}
-            onClick={logout}
-            loading={loading}
-            />
-
-        </Header>
-        <Content
-          style={{
-            margin:'4px 8px',
-            padding:4,
-            minHeight:280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-
+        <ConfigProvider
+          theme={{
+            components: {
+              Menu: {
+                darkItemSelectedBg: "#2563eb",
+                darkItemSelectedColor: "#ffffff",
+                darkItemBg: "transparent",
+                darkItemColor: "#94a3b8",
+                darkItemHoverColor: "#ffffff",
+                itemBorderRadius: 10,
+                itemMarginInline: 12,
+                itemHeight: 44,
+              },
+            },
           }}
         >
+          <Menu
+            selectedKeys={[pathname.startsWith("/app/user/transactions") ? "/app/user/transactions" : "/app/user/dashboard"]}
+            theme="dark"
+            items={items}
+            onClick={handleNavigate}
+            className="!border-none !bg-transparent font-medium"
+          />
+        </ConfigProvider>
+      </Sider>
+
+      <Layout className="!bg-slate-50">
+        <Header style={headerStyle} className="flex items-center justify-between shadow-xs">
+          <Button
+            type="text"
+            onClick={() => setOpen(!open)}
+            icon={<MenuOutlined className="text-gray-600" />}
+            className="!border !border-gray-200 !rounded-lg"
+          />
+          <Button
+            shape="circle"
+            type="text"
+            icon={<PoweroffOutlined className="text-gray-600" />}
+            onClick={logout}
+            loading={loading}
+            className="!border !border-gray-200 hover:!border-rose-300 hover:!text-rose-500"
+          />
+        </Header>
+        <Content className="p-4 sm:p-6 md:p-8 !bg-slate-50 min-h-[calc(100vh-64px)]">
           <Outlet />
         </Content>
       </Layout>
     </Layout>
   );
 };
+
 export default Userlayout;

@@ -21,6 +21,13 @@ const TransactionSchema = new Schema({
         required: true
     },
 
+    category: {
+        type: String,
+        lowercase: true,
+        trim: true,
+        default: "others"
+    },
+
     amount: {
         type: Number,
         required: true
