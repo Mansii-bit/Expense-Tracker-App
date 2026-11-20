@@ -6,7 +6,6 @@ import http from "../../../utils/http";
 import fetcher from "../../../utils/fetcher"
 import useSWR, { mutate } from "swr";
 import { formatDate } from "../../../utils/date";
-// import { Form } from "react-router-dom";
 
 const { Item } = Form;
 
@@ -23,7 +22,14 @@ const Transactions = () => {
             title: "Transaction Type",
             dataIndex: "transactionType",
             key: "transactionType",
-            className: "capitalize"
+            className: "capitalize",
+            render: (type) => (
+                <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                    type === "cr" || type === "credit" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-500"
+                }`}>
+                    {type === "cr" || type === "credit" ? "Credit" : "Debit"}
+                </span>
+            )
         },
         {
             title: "Title",
@@ -32,10 +38,23 @@ const Transactions = () => {
             className: "capitalize"
         },
         {
+            title: "Category",
+            dataIndex: "category",
+            key: "category",
+            className: "capitalize",
+            render: (cat) => cat ? <span className="capitalize">{cat}</span> : "Others"
+        },
+        {
             title: "Amount",
             dataIndex: "amount",
             key: "amount",
-            className: "capitalize"
+            render: (val, obj) => (
+                <span className={`font-semibold ${
+                    obj.transactionType === "cr" || obj.transactionType === "credit" ? "text-emerald-600" : "text-rose-500"
+                }`}>
+                    ₹{Number(val).toLocaleString("en-IN")}
+                </span>
+            )
         },
         {
             title: "Payment Method",
@@ -139,7 +158,7 @@ const Transactions = () => {
             setLoading(true);
 
             await http.post("/api/transaction/create", values);
-            mutate("/api/transaction/create");
+            mutate("/api/transaction/get");
 
             toast.success("Transaction created successfully!");
             setModal(false);
@@ -166,7 +185,11 @@ const Transactions = () => {
                                 prefix={<SearchOutlined />}
                             />
                             <Button
-                                onClick={() => setModal(true)}
+                                onClick={() => {
+                                    setEdit(null);
+                                    transactionForm.resetFields();
+                                    setModal(true);
+                                }}
                                 type="text"
                                 className="!font-bold !bg-blue-500 !text-white"
                             >
@@ -178,6 +201,7 @@ const Transactions = () => {
                     <Table
                         columns={columns}
                         dataSource={transactions}
+                        rowKey="_id"
                         scroll={{ x: "max-content" }}
                         loading={isLoading}
                     />
@@ -190,7 +214,7 @@ const Transactions = () => {
                     setEdit(null)
                     transactionForm.resetFields();
                 }}
-                title="Add new transaction"
+                title={edit ? "Edit transaction" : "Add new transaction"}
                 footer={null}
             >
                 <Form
@@ -207,8 +231,8 @@ const Transactions = () => {
                             <Select
                                 placeholder="Transaction Type"
                                 options={[
-                                    { label: "CR", value: "cr" },
-                                    { label: "DR", value: "dr" },
+                                    { label: "CR (Credit / Income)", value: "cr" },
+                                    { label: "DR (Debit / Expense)", value: "dr" },
                                 ]}
                             />
                         </Item>
@@ -230,6 +254,23 @@ const Transactions = () => {
                             <Input placeholder="Enter title" />
                         </Item>
                         <Item
+                            label="Category"
+                            name="category"
+                        >
+                            <Select
+                                placeholder="Select category"
+                                options={[
+                                    { label: "Food & Dining", value: "food & dining" },
+                                    { label: "Shopping", value: "shopping" },
+                                    { label: "Transport", value: "transport" },
+                                    { label: "Bills & Utilities", value: "bills & utilities" },
+                                    { label: "Entertainment", value: "entertainment" },
+                                    { label: "Income", value: "income" },
+                                    { label: "Others", value: "others" },
+                                ]}
+                            />
+                        </Item>
+                        <Item
                             label="Payment Method"
                             name="paymentMethod"
                             rules={[{ required: true }]}
@@ -246,9 +287,8 @@ const Transactions = () => {
                     <Item
                         label="Notes"
                         name="notes"
-                        rules={[{ required: true }]}
                     >
-                        <Input.TextArea placeholder="potato, tomato, etc" />
+                        <Input.TextArea placeholder="Additional notes..." />
                     </Item>
                     <Item className="flex justify-end items-center">
                         <Button

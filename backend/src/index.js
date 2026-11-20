@@ -34,8 +34,9 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use("/api/user", userRouter);
-app.use("/api/transaction",TransactionRouter)
-app.use("/api/dashboard",DashboardRouter)
+app.use("/api/transaction", TransactionRouter);
+app.use("/api/transactions", TransactionRouter);
+app.use("/api/dashboard", DashboardRouter);
 
 // Start server 
 const port = process.env.PORT || 3030;

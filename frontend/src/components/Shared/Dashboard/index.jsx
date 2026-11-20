@@ -101,7 +101,7 @@ const getCategoryIcon = (title = "", category = "") => {
 };
 
 const getCategoryBadgeStyle = (category = "") => {
-  const cat = category.toLowerCase();
+  const cat = (category || "").toLowerCase();
   if (cat.includes("food")) return "bg-rose-50 text-rose-600 border border-rose-100";
   if (cat.includes("income") || cat.includes("salary")) return "bg-blue-50 text-blue-600 border border-blue-100";
   if (cat.includes("trans")) return "bg-amber-50 text-amber-700 border border-amber-100";
@@ -118,7 +118,7 @@ const CustomBarTooltip = ({ active, payload, label }) => {
 
     return (
       <div className="bg-slate-900 text-white px-3 py-2.5 rounded-lg shadow-xl text-xs space-y-1 z-50">
-        <p className="font-semibold text-gray-200">{label} 2026</p>
+        <p className="font-semibold text-gray-200">{label}</p>
         <div className="flex items-center gap-2 text-blue-400">
           <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
           <span>Income: ₹{Number(incomeVal).toLocaleString("en-IN")}</span>
@@ -149,7 +149,6 @@ const Dashboard = () => {
 
   // Filters for individual chart cards
   const [incomeExpenseFilter, setIncomeExpenseFilter] = useState("last6");
-  const [categoryFilter, setCategoryFilter] = useState("this_month");
   const [trendMetric, setTrendMetric] = useState("expenses");
 
   // Dashboard backend data state
@@ -165,13 +164,13 @@ const Dashboard = () => {
     }
   }, []);
 
-  // Fetch report when date range changes (Step 2: Send selected dates as query params)
+  // Fetch report from MongoDB via combined API endpoint
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
 
     http
-      .get("/api/dashboard/report", {
+      .get("/api/transactions/dashboard", {
         params: {
           startDate: dateRange.startDate,
           endDate: dateRange.endDate,
@@ -184,10 +183,26 @@ const Dashboard = () => {
         }
       })
       .catch((err) => {
-        console.error("Dashboard report error:", err);
-        if (isMounted) {
-          setLoading(false);
-        }
+        // Fallback to /api/dashboard/report if needed
+        http
+          .get("/api/dashboard/report", {
+            params: {
+              startDate: dateRange.startDate,
+              endDate: dateRange.endDate,
+            },
+          })
+          .then((res) => {
+            if (isMounted) {
+              setReport(res.data);
+              setLoading(false);
+            }
+          })
+          .catch((e) => {
+            console.error("Dashboard report error:", e);
+            if (isMounted) {
+              setLoading(false);
+            }
+          });
       });
 
     return () => {
@@ -241,20 +256,21 @@ const Dashboard = () => {
     return <Loader />;
   }
 
+  // Pure actual data from MongoDB - no hardcoded fallbacks
   const summary = report?.summary || {
-    totalTransaction: 24,
-    totalCredit: 45000,
-    totalDebit: 22340,
-    balance: 22660,
-    totalTransactionChange: "+12%",
-    totalCreditChange: "8%",
-    totalDebitChange: "+5%",
-    balanceChange: "15%",
+    totalTransaction: 0,
+    totalCredit: 0,
+    totalDebit: 0,
+    balance: 0,
+    totalTransactionChange: "0%",
+    totalCreditChange: "0%",
+    totalDebitChange: "0%",
+    balanceChange: "0%",
   };
 
   const incomeVsExpenses = report?.incomeVsExpenses || [];
   const spendingCategories = report?.spendingByCategory?.categories || [];
-  const totalSpent = report?.spendingByCategory?.totalSpent || summary.totalDebit || 22340;
+  const totalSpent = report?.spendingByCategory?.totalSpent ?? summary.totalDebit ?? 0;
   const monthlyTrend = report?.monthlyTrend || [];
   const recentTransactions = report?.recentTransactions || [];
   const userRole = sessionUser?.role || "user";
@@ -331,7 +347,7 @@ const Dashboard = () => {
 
   return (
     <div className="w-full space-y-6">
-      {/* Step 1 & 2: Header with Greeting & Selected Date Range Trigger near Heading */}
+      {/* Header with Greeting & Selected Date Range Trigger */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
@@ -375,7 +391,7 @@ const Dashboard = () => {
             </h3>
             <p className="text-xs font-semibold text-emerald-600 mt-1 flex items-center gap-1">
               <span>▲</span>
-              <span>{summary.totalTransactionChange || "+12%"}</span>
+              <span>{summary.totalTransactionChange || "0%"}</span>
               <span className="text-gray-400 font-normal">vs last month</span>
             </p>
           </div>
@@ -393,7 +409,7 @@ const Dashboard = () => {
             </h3>
             <p className="text-xs font-semibold text-emerald-600 mt-1 flex items-center gap-1">
               <span>▲</span>
-              <span>{summary.totalCreditChange || "8%"}</span>
+              <span>{summary.totalCreditChange || "0%"}</span>
               <span className="text-gray-400 font-normal">vs last month</span>
             </p>
           </div>
@@ -411,13 +427,13 @@ const Dashboard = () => {
             </h3>
             <p className="text-xs font-semibold text-rose-500 mt-1 flex items-center gap-1">
               <span>▲</span>
-              <span>{summary.totalDebitChange || "+5%"}</span>
+              <span>{summary.totalDebitChange || "0%"}</span>
               <span className="text-gray-400 font-normal">vs last month</span>
             </p>
           </div>
         </div>
 
-        {/* Card 4: Balance */}
+        {/* Card 4: Balance (Net Activity for the selected period) */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
           <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center shrink-0 shadow-sm shadow-purple-200">
             <DollarCircleOutlined className="text-white text-xl" />
@@ -429,14 +445,14 @@ const Dashboard = () => {
             </h3>
             <p className="text-xs font-semibold text-emerald-600 mt-1 flex items-center gap-1">
               <span>▲</span>
-              <span>{summary.balanceChange || "15%"}</span>
+              <span>{summary.balanceChange || "0%"}</span>
               <span className="text-gray-400 font-normal">vs last month</span>
             </p>
           </div>
         </div>
       </div>
 
-      {/* Step 1: Middle Section - Two columns on desktop, collapses into one column on mobile */}
+      {/* Middle Section - Two columns on desktop, collapses into one column on mobile */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Income vs Expenses Card */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-gray-100">
@@ -470,7 +486,7 @@ const Dashboard = () => {
             </span>
           </div>
 
-          {/* Grouped Bar Chart */}
+          {/* Grouped Bar Chart with actual MongoDB data */}
           <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={incomeVsExpenses} barGap={4}>
@@ -504,81 +520,78 @@ const Dashboard = () => {
               <PieChartOutlined className="text-blue-600 text-lg" />
               <h2 className="text-base font-bold text-gray-800">Spending by Category</h2>
             </div>
-            <Select
-              size="small"
-              value={categoryFilter}
-              onChange={setCategoryFilter}
-              className="w-28"
-              options={[
-                { label: "This Month", value: "this_month" },
-                { label: "Last Month", value: "last_month" },
-                { label: "All Time", value: "all" },
-              ]}
-            />
+            <span className="text-xs text-gray-400 font-medium">Selected Period</span>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-2">
-            {/* Donut Chart with Centered Total Spent */}
-            <div className="relative w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={spendingCategories}
-                    dataKey="amount"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={80}
-                    paddingAngle={2}
+          {spendingCategories.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-400 text-sm">
+              <PieChartOutlined className="text-4xl text-gray-300 mb-2" />
+              <span>No expense records found for this period</span>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-2">
+              {/* Donut Chart with Centered Total Spent */}
+              <div className="relative w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={spendingCategories}
+                      dataKey="amount"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={80}
+                      paddingAngle={2}
+                    >
+                      {spendingCategories.map((entry, index) => (
+                        <Cell key={`cat-cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val) => `₹${Number(val).toLocaleString("en-IN")}`}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                  <span className="text-lg font-bold text-gray-900 leading-tight">
+                    ₹{Number(totalSpent).toLocaleString("en-IN")}
+                  </span>
+                  <span className="text-xs text-gray-400 font-medium">Total Spent</span>
+                </div>
+              </div>
+
+              {/* Category Breakdown Legend */}
+              <div className="flex-1 w-full space-y-2">
+                {spendingCategories.map((cat, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between text-xs sm:text-sm py-1 border-b border-gray-50 last:border-none"
                   >
-                    {spendingCategories.map((entry, index) => (
-                      <Cell key={`cat-cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(val) => `₹${Number(val).toLocaleString("en-IN")}`}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                <span className="text-lg font-bold text-gray-900 leading-tight">
-                  ₹{Number(totalSpent).toLocaleString("en-IN")}
-                </span>
-                <span className="text-xs text-gray-400 font-medium">Total Spent</span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: cat.color }}
+                      ></span>
+                      <span className="text-gray-700 font-medium">{cat.name}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-gray-400 font-medium text-right w-12">
+                        {cat.percentage}%
+                      </span>
+                      <span className="text-gray-800 font-semibold text-right w-16">
+                        ₹{Number(cat.amount).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Category Breakdown Legend */}
-            <div className="flex-1 w-full space-y-2">
-              {spendingCategories.map((cat, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between text-xs sm:text-sm py-1 border-b border-gray-50 last:border-none"
-                >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: cat.color }}
-                    ></span>
-                    <span className="text-gray-700 font-medium">{cat.name}</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-gray-400 font-medium text-right w-10">
-                      {cat.percentage}%
-                    </span>
-                    <span className="text-gray-800 font-semibold text-right w-16">
-                      ₹{Number(cat.amount).toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Step 1: Lower Section - Two columns on desktop, collapses into one column on mobile */}
+      {/* Lower Section - Two columns on desktop, collapses into one column on mobile */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Monthly Trend Card */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-gray-100">
@@ -629,7 +642,7 @@ const Dashboard = () => {
                 />
                 <Area
                   type="monotone"
-                  dataKey="amount"
+                  dataKey={trendMetric === "income" ? "income" : trendMetric === "balance" ? "balance" : "amount"}
                   stroke="#2563eb"
                   strokeWidth={2.5}
                   fillOpacity={1}
@@ -670,51 +683,59 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {recentTransactions.map((txn, index) => {
-                    const isCredit =
-                      txn.transactionType === "cr" || txn.transactionType === "credit";
-                    const catBadgeStyle = getCategoryBadgeStyle(txn.category);
-                    const icon = getCategoryIcon(txn.title, txn.category);
+                  {recentTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-gray-400 text-xs">
+                        No recent transactions found
+                      </td>
+                    </tr>
+                  ) : (
+                    recentTransactions.map((txn, index) => {
+                      const isCredit =
+                        txn.transactionType === "cr" || txn.transactionType === "credit";
+                      const catBadgeStyle = getCategoryBadgeStyle(txn.category);
+                      const icon = getCategoryIcon(txn.title, txn.category);
 
-                    return (
-                      <tr key={txn._id || index} className="hover:bg-gray-50/50 transition">
-                        <td className="py-3 pr-2 flex items-center gap-2 font-medium text-gray-800">
-                          <span className="text-sm">{icon}</span>
-                          <span className="truncate max-w-[120px] sm:max-w-[150px] capitalize">
-                            {txn.title}
-                          </span>
-                        </td>
-                        <td className="py-3 px-2">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium capitalize ${catBadgeStyle}`}
-                          >
-                            {txn.category || "Others"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-2">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                              isCredit
-                                ? "bg-emerald-50 text-emerald-600"
-                                : "bg-rose-50 text-rose-500"
+                      return (
+                        <tr key={txn._id || index} className="hover:bg-gray-50/50 transition">
+                          <td className="py-3 pr-2 flex items-center gap-2 font-medium text-gray-800">
+                            <span className="text-sm">{icon}</span>
+                            <span className="truncate max-w-[120px] sm:max-w-[150px] capitalize">
+                              {txn.title}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium capitalize ${catBadgeStyle}`}
+                            >
+                              {txn.category || "Others"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+                                isCredit
+                                  ? "bg-emerald-50 text-emerald-600"
+                                  : "bg-rose-50 text-rose-500"
+                              }`}
+                            >
+                              {isCredit ? "Credit" : "Debit"}
+                            </span>
+                          </td>
+                          <td
+                            className={`py-3 px-2 text-right font-semibold ${
+                              isCredit ? "text-emerald-600" : "text-rose-500"
                             }`}
                           >
-                            {isCredit ? "Credit" : "Debit"}
-                          </span>
-                        </td>
-                        <td
-                          className={`py-3 px-2 text-right font-semibold ${
-                            isCredit ? "text-emerald-600" : "text-rose-500"
-                          }`}
-                        >
-                          {isCredit ? "+" : "-"} ₹{Number(txn.amount).toLocaleString("en-IN")}
-                        </td>
-                        <td className="py-3 pl-2 text-right text-gray-400 text-xs whitespace-nowrap">
-                          {dayjs(txn.createdAt).format("DD MMM YYYY")}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                            {isCredit ? "+" : "-"} ₹{Number(txn.amount).toLocaleString("en-IN")}
+                          </td>
+                          <td className="py-3 pl-2 text-right text-gray-400 text-xs whitespace-nowrap">
+                            {dayjs(txn.createdAt).format("DD MMM YYYY")}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
