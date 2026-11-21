@@ -1,5 +1,6 @@
 import {
   AppstoreAddOutlined,
+  DollarOutlined,
   MenuOutlined,
   PoweroffOutlined,
   UserOutlined,
@@ -17,6 +18,11 @@ const items = [
     key: "/app/admin/dashboard",
     label: "Dashboard",
     icon: <AppstoreAddOutlined />,
+  },
+  {
+    key: "/app/admin/transactions",
+    label: "Transactions",
+    icon: <DollarOutlined />,
   },
   {
     key: "/app/admin/users",
@@ -112,7 +118,13 @@ const Adminlayout = () => {
           }}
         >
           <Menu
-            selectedKeys={[pathname.startsWith("/app/admin/users") ? "/app/admin/users" : "/app/admin/dashboard"]}
+            selectedKeys={[
+              pathname.startsWith("/app/admin/transactions")
+                ? "/app/admin/transactions"
+                : pathname.startsWith("/app/admin/users")
+                ? "/app/admin/users"
+                : "/app/admin/dashboard",
+            ]}
             theme="dark"
             items={items}
             onClick={handleNavigate}

@@ -664,7 +664,7 @@ const Dashboard = () => {
                 <h2 className="text-base font-bold text-gray-800">Recent Transactions</h2>
               </div>
               <Link
-                to={userRole === "admin" ? "/app/admin/dashboard" : "/app/user/transactions"}
+                to={userRole === "admin" ? "/app/admin/transactions" : "/app/user/transactions"}
                 className="text-blue-600 hover:text-blue-700 text-xs font-semibold hover:underline"
               >
                 View All

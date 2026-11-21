@@ -23,10 +23,11 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           {/* admin related routes */}
-           <Route path="/app/admin"
+          <Route path="/app/admin"
             element={<Guard endpoint="/api/user/session" role="admin"> <Adminlayout /> </Guard>}>
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="transactions" element={<Transactions />} />
             <Route path="users" element={<Users />} />
           </Route>
           
