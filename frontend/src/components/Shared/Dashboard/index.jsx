@@ -351,7 +351,7 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            Welcome back, {userName}! <span>👋</span>
+            Welcome back, {userName}!
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Here's a summary of your finances for this period.

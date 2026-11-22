@@ -86,7 +86,8 @@ const Userlayout = () => {
         <div className="flex items-center justify-center my-6">
           <div className="w-14 h-14 rounded-full bg-white/10 p-1 flex items-center justify-center border border-white/20">
             <Image
-              src="/front.jpg"
+              src="/front.png"
+              fallback="/front.jpg"
               width={48}
               height={48}
               preview={false}
