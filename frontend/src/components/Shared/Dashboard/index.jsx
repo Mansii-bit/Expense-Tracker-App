@@ -148,7 +148,6 @@ const Dashboard = () => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   // Filters for individual chart cards
-  const [incomeExpenseFilter, setIncomeExpenseFilter] = useState("last6");
   const [trendMetric, setTrendMetric] = useState("expenses");
 
   // Dashboard backend data state
@@ -461,17 +460,6 @@ const Dashboard = () => {
               <BarChartOutlined className="text-blue-600 text-lg" />
               <h2 className="text-base font-bold text-gray-800">Income vs Expenses</h2>
             </div>
-            <Select
-              size="small"
-              value={incomeExpenseFilter}
-              onChange={setIncomeExpenseFilter}
-              className="w-32"
-              options={[
-                { label: "Last 6 Months", value: "last6" },
-                { label: "Last 30 Days", value: "last30" },
-                { label: "This Year", value: "year" },
-              ]}
-            />
           </div>
 
           {/* Chart Legend */}
@@ -520,7 +508,6 @@ const Dashboard = () => {
               <PieChartOutlined className="text-blue-600 text-lg" />
               <h2 className="text-base font-bold text-gray-800">Spending by Category</h2>
             </div>
-            <span className="text-xs text-gray-400 font-medium">Selected Period</span>
           </div>
 
           {spendingCategories.length === 0 ? (
