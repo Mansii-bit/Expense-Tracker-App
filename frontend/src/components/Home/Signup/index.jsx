@@ -1,6 +1,6 @@
 import { Button, Form, Input } from "antd";
 import { UserOutlined, LockOutlined, PhoneOutlined, MailOutlined, ArrowRightOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Homelayout from "../../../layout/Homelayout";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -14,6 +14,7 @@ const Signup = () => {
   const [formData, setFormData] = useState(null);
   const [otp, setOtp] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const onSignup = async (values) => {
     try {
@@ -22,6 +23,7 @@ const Signup = () => {
       }
       setLoading(true);
       await http.post("/api/user", formData);
+      navigate('/');
       toast.success("Signup Successful! Please sign in.");
       setOtp(null);
       setFormData(null);
@@ -53,7 +55,7 @@ const Signup = () => {
   return (
     <Homelayout>
       <div className="w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[580px]">
-        {/* Left Section: Gradient of shades of blue */}
+        {/* Left Section*/}
         <div className="w-full md:w-1/2 bg-gradient-to-br from-[#071228] via-[#1d4ed8] to-[#3b82f6] p-8 md:p-12 flex flex-col justify-between text-white relative overflow-hidden">
           {/* Subtle decorative glow circles */}
           <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />

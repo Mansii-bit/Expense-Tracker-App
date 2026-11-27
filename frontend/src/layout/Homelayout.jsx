@@ -8,34 +8,54 @@ const Homelayout = ({ children }) => {
     <Layout className="min-h-screen !bg-slate-50 flex flex-col">
       {/* ================= HEADER ================= */}
       <Header
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(248,250,252,0) 0%, rgba(248,250,252,0) 35%, rgba(248,250,252,0.85) 80%, #f8fafc 100%), linear-gradient(90deg, rgba(65,105,225,0.6) 0%, rgba(96,165,250,0.35) 18%, #ffffff 35%, #ffffff 65%, rgba(96,165,250,0.35) 82%, rgba(65,105,225,0.6) 100%)",
+        }}
         className="
-          !h-[76px]
+          !h-auto
+          !py-6
           !px-6
           md:!px-10
-          !bg-[#0d2942]
+          relative
+          overflow-hidden
           !border-0
           flex
           items-center
           justify-center
-          sticky
-          top-0
-          z-50
-          shadow-sm
+          !shadow-none
         "
       >
-        <h1
-          className="
-            text-white
-            text-xl
-            md:text-3xl
-            font-bold
-            text-center
-            tracking-tight
-            m-0
-          "
-        >
-          Expense Tracker App
-        </h1>
+        {/* Subtle decorative glow at left and right ends */}
+        <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-48 h-48 bg-[#4169e1]/25 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -right-12 top-1/2 -translate-y-1/2 w-48 h-48 bg-[#4169e1]/25 rounded-full blur-2xl pointer-events-none" />
+
+        {/* Bottom edge fade seamlessly blending into page background */}
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none z-[5]" />
+
+        <div className="relative z-10 flex items-center justify-center gap-3 sm:gap-5 md:gap-6">
+          <span className="w-10 sm:w-16 md:w-24 h-[2px] bg-[#4169e1] rounded-full inline-block" />
+          <h1
+            className="
+              text-2xl
+              sm:text-3xl
+              md:text-4xl
+              font-bold
+              tracking-normal
+              m-0
+              select-none
+              flex
+              items-center
+              gap-2
+              sm:gap-3
+            "
+            style={{ fontFamily: "'Georgia', 'Playfair Display', serif" }}
+          >
+            <span className="text-[#041b4c]">Expense</span>
+            <span className="text-[#0052ff]">Tracker</span>
+          </h1>
+          <span className="w-10 sm:w-16 md:w-24 h-[2px] bg-[#4169e1] rounded-full inline-block" />
+        </div>
       </Header>
 
       {/* ================= CONTENT ================= */}
